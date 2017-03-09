@@ -39,7 +39,7 @@ local labelSampleSize = {3, opt.labelSize}
 
 local codebooktxt = '/media/data/daoyuan/16824/3d/list/codebook_40.txt'
 if onserver then
-    local codebooktxt = '/scratch/16824/3d/list/codebook_40.txt'
+    codebooktxt = '/scratch/16824/3d/list/codebook_40.txt'
 end
 local codebook = torch.Tensor(40,3)
 if type(opt.classification) == 'number' and opt.classification == 1 then 

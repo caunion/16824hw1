@@ -10,7 +10,7 @@ image_utils = require 'image'
 ok, disp = pcall(require, 'display')
 if not ok then print('display not found. unable to plot') end
 
-onserver = true
+onserver = false
 local sanitize = require('sanitize')
 
 

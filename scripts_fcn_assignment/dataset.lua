@@ -20,7 +20,7 @@ require 'image'
 
 local dataset = torch.class('dataLoader')
 
-list_file = '../trainlist_rand.txt'
+list_file = '../list/trainlist_rand.txt'
 path_dataset = '/media/data/daoyuan/16824/3d/'
 if onserver then
     path_dataset = '/scratch/16824/3d/'

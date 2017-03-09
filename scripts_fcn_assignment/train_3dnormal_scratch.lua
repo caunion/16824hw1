@@ -80,8 +80,40 @@ if opt.network == '' then
   -- TODO: write your own networks, let's name it as model_FCN for the sake of simplicity
   -- hint: you might need to add large padding in conv1 (perhaps around 100ish? )
   -- hint2: use ReArrange instead of Reshape or View
+  --
+  -- ­> BN ­> RELU ­> Pool(3, 2) ­>
+  --Conv(256,5,1,2) ­> BN ­> RELU ­> Pool(3, 2) ­> Conv(384,3,1,1)
+  --­> BN ­> RELU ­> Conv(384,3,1,1) ­> BN ­> RELU ­> Conv(256,3,1,1)
+  -- ­> BN ­> RELU ­> Pool(3, 2) ­> Conv(1024,6,1,1) ­> BN ­> RELU
+  --­> DeConv(512,4,2,1) ­> BN ­> RELU ­> Conv(40,3,1,1) ­> ReArrange ­> SoftMax
+    model_FCN = nn.Sequential()
+    model_FCN:add(nn.SpatialConvolution(3, 96, 11, 11, 4, 4, 68,68)) --Conv(96,11,4,68)
+    model_FCN:add(nn.BatchNormalization(96))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialMaxPooling(3,3,2,2))
+    model_FCN:add(nn.SpatialConvolution(96, 256, 5, 5, 1, 1, 2, 2))
+    model_FCN:add(nn.BatchNormalization(256))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialMaxPooling(3,3,2,2))
+    model_FCN:add(nn.SpatialConvolution(256, 384, 3, 3, 1, 1, 1, 1))
+    model_FCN:add(nn.BatchNormalization(384))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialConvolution(384,384, 3,3, 1, 1,1,1))
+    model_FCN:add(nn.BatchNormalization(384))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialConvolution(384,256, 3, 3, 1, 1, 1, 1))
+    model_FCN:add(nn.BatchNormalization(256))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialMaxPooling(3,3,2,2))
+    model_FCN:add(nn.SpatialConvolution(256,1024, 6, 6, 1, 1, 1, 1))
+    model_FCN:add(nn.BatchNormalization(1024))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialFullConvolution(1024, 512, 4,4, 2,2, 1,1))
+    model_FCN:add(nn.BatchNormalization(512))
+    model_FCN:add(nn.ReLU())
+    model_FCN:add(nn.SpatialConvolution(512,40,3,3, 1, 1,1,1))
 
-  model_FCN:apply(weights_init)
+    model_FCN:apply(weights_init)
 
 else
   print('<trainer> reloading previously trained network: ' .. opt.network)
