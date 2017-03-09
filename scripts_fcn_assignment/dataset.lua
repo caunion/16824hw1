@@ -137,7 +137,7 @@ function dataset:__init(...)
    local filename
 
     f = assert(io.open(list_file, "r"))
-print(string.format('the train file have %d lines!!!!!!!', length))
+    print(string.format('the train file have %d lines!!!!!!!', length))
     for i = 1, length do
       local jump = false
       -- get name
@@ -157,7 +157,7 @@ print(string.format('the train file have %d lines!!!!!!!', length))
 
       filename = path_dataset .. filename 
       labelname = path_dataset .. labelname
-        if not pcall(checkIMG(filename, labelname)) then
+        if not onserver and not pcall(checkIMG(filename, labelname)) then
             print('warning, reading img or label error!\n' .. filename .. '\n' .. labelname ..'\n')
             jump = true
         end

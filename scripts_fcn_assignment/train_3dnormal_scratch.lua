@@ -18,8 +18,8 @@ local sanitize = require('sanitize')
 -- parse command-line options
 -- TODO: put your path for saving models in "save" 
 opt = lapp[[
-  -s,--save          (default "")      subdirectory to save logs
-  --saveFreq         (default 5)          save every saveFreq epochs
+  -s,--save          (default "/media/data/daoyuan/16824/models/scratch")      subdirectory to save logs
+  --saveFreq         (default 1)          save every saveFreq epochs
   -n,--network       (default "")          reload pretrained network
   -r,--learningRate  (default 0.01)      learning rate
   -b,--batchSize     (default 10)         batch size
@@ -27,7 +27,7 @@ opt = lapp[[
   -t,--threads       (default 2)           number of threads
   -g,--gpu           (default 0)          gpu to run on (default cpu)
   --scale            (default 512)          scale of images to train on
-  --epochSize        (default 2000)        number of samples per epoch
+  --epochSize        (default 500)        number of samples per epoch
   --forceDonkeys     (default 0)
   --nDonkeys         (default 2)           number of data loading threads
   --weightDecay      (default 0.0005)        weight decay
@@ -40,7 +40,7 @@ print(opt)
 
 opt.loadSize  = opt.scale 
 -- TODO: setup the output size 
--- opt.labelSize = ?
+ opt.labelSize = 16
 
 
 opt.manualSeed = torch.random(1,10000) 
@@ -112,7 +112,8 @@ if opt.network == '' then
     model_FCN:add(nn.BatchNormalization(512))
     model_FCN:add(nn.ReLU())
     model_FCN:add(nn.SpatialConvolution(512,40,3,3, 1, 1,1,1))
-
+    model_FCN:add(nn.Transpose({2,3},{3,4}))
+    model_FCN:add(nn.View(-1, opt.classnum))
     model_FCN:apply(weights_init)
 
 else
@@ -131,6 +132,20 @@ print(model_FCN)
 -- TODO: setup dataset, use data.lua
 -- TODO: setup training functions, use fcn_train_cls.lua
 -- TODO: convert model and loss function to cuda
+
+criterion = nn.CrossEntropyCriterion()
+
+if opt.gpu then
+    model_FCN:cuda()
+    criterion:cuda()
+    print('Copy model 2 gpu')
+end
+
+parameters_FCN,gradParameters_FCN = model_FCN:getParameters()
+
+paths.dofile('data.lua')
+fcn = paths.dofile('fcn_train_cls.lua')
+
 
 
 local optimState = {
@@ -151,7 +166,7 @@ local function train()
    for i=1,opt.epochSize do
       donkeys:addjob(
          function()
-            return makeData_cls( (opt.batchSize))
+            return makeData_cls(trainLoader:sample(opt.batchSize))
          end,
          fcn.train)
    end

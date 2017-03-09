@@ -20,7 +20,7 @@ opt = lapp[[
 ]]
 
 if opt.gpu < 0 or opt.gpu > 8 then opt.gpu = false end
-opt.network = '/media/data/daoyuan/16824/models/fcn_2.net' -- your trained network
+opt.network = '/media/data/daoyuan/16824/models/fcn_3.net' -- your trained network
 opt.list_file = '/media/data/daoyuan/16824/3d/list/testLabels.txt'
 opt.path_dataset = '/media/data/daoyuan/16824/3d/croptest/'
 opt.codebooktxt = '/media/data/daoyuan/16824/3d/list/codebook_40.txt'
